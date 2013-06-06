@@ -9,9 +9,10 @@ import boto
 import boto.s3.connection
 import string
 import random
+import httplib2
 from django import forms
 
-service_url = 'http://192.168.40.15/imagecrud/'
+service_path= 'imagecrud/'
 img_bucket = 'image_crud'
 access_key = '4JWDSSAGCE4VSC5WPC0GV'
 secret_key = 'b0PGLn36sHePTU8Mwru2X9KU5B8qnGRH5UCTDjvV'
@@ -19,10 +20,27 @@ s3_host = '192.168.51.170'
 s3_port = 8773
 s3_path = '/services/Walrus'
 
+
 class UploadFileForm(forms.Form):
     title = forms.CharField(max_length=50)
     file  = forms.FileField()
 
+ip_address = None
+
+def get_ipaddr():
+    try:
+        if ip_address is None:
+            resp, content = httplib2.Http().request("http://169.254.169.254/latest/meta-data/hostname")
+        else:
+            return ip_address
+        if resp['status'] != '200' or len(content) <= 0:
+            return '127.0.0.1'
+        else:
+            ip_address = content
+            return ip_address
+    except Exception, err:
+        return '127.0.0.1'
+ 
 # Create your views here.
 def index(request):
     body='<html> <head> </head> <body> <table>'
@@ -32,7 +50,7 @@ def index(request):
         for image in Image.objects.all():
             if i % num_col == 0:
                 body = body + '<tr>'
-            url = '%s%s' % (service_url, image.name)
+            url = '%s' % image.name
             body = body + '<td> <a href="%s"> <img src="%s" width=100/> </a> </td>' % (url,image.path) 
             if i % num_col == num_col:
                 body = body + '</tr>'

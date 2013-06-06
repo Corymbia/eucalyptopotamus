@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python /root/eucalyptopotamus/django/eucapp/manage.py runserver &
