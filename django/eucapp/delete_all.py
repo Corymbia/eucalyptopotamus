@@ -14,7 +14,13 @@ if __name__ == "__main__":
 
     url = args[0]
     output = commands.getoutput('curl %s' % url)
-    lines = output.split('\n')
+    lines = output.split('<a href=')
     for line in lines:
-        if line.startswith('http'):
-            commands.getoutput('./delete.py %s' % line)
+       try:
+           idx_http = line.index('http')
+           idx_end = line.index('>')
+           url = line[idx_http:idx_end-1]
+           commands.getoutput('./delete.py %s' % url)
+           print 'deleted %s' % url
+       except Exception, err:
+           pass

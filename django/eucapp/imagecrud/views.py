@@ -25,11 +25,19 @@ class UploadFileForm(forms.Form):
 
 # Create your views here.
 def index(request):
-    body=''
+    body='<html> <head> </head> <body> <table>'
+    num_col=8
     try:
+        i = 0
         for image in Image.objects.all():
+            if i % num_col == 0:
+                body = body + '<tr>'
             url = '%s%s' % (service_url, image.name)
-            body = body + '<a href="%s"> %s </a> <br>' % (url, url)
+            body = body + '<td> <a href="%s"> <img src="%s" width=100/> </a> </td>' % (url,image.path) 
+            if i % num_col == num_col:
+                body = body + '</tr>'
+            i=i+1
+        body = body + '</table> </body> </html>'
     except Exception, err:
         return HttpResponse(err, status=500)
  
@@ -115,11 +123,21 @@ def read(request, image_name):
 def delete(request, image_name):
     try:
         image=Image.objects.get(name=image_name)
-        filepath = image.path
-        print "deleting: %s" %filepath
+        path = image.path
+        token = path.split('/')
+        key_name = token[len(token)-1]
         try:
-            if os.path.exists(filepath):
-                os.unlink(filepath)
+            calling_format=boto.s3.connection.OrdinaryCallingFormat()
+            connection = boto.s3.connection.S3Connection(aws_access_key_id=access_key,
+                      aws_secret_access_key=secret_key,
+                      is_secure=False,
+                      host=s3_host,
+                      port=s3_port,
+                      calling_format=calling_format,
+                      path=s3_path)
+
+            bucket = connection.get_bucket(img_bucket)
+            bucket.delete_key(key_name)
         except Exception, err:
             return HttpResponse(err, status=500)
         image.delete()
