@@ -161,6 +161,6 @@ IMAGECRUD = {
     'access_key' : '4JWDSSAGCE4VSC5WPC0GV',
     'secret_key' : 'b0PGLn36sHePTU8Mwru2X9KU5B8qnGRH5UCTDjvV',
     's3_host' : '192.168.51.170',
-    's3_port' : '8773',
+    's3_port' : 8773,
     's3_path' : '/services/Walrus'
 }
