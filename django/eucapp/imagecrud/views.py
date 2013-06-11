@@ -10,16 +10,8 @@ import boto.s3.connection
 import string
 import random
 import httplib2
+from django.conf import settings
 from django import forms
-
-service_path= 'imagecrud/'
-img_bucket = 'image_crud'
-access_key = '4JWDSSAGCE4VSC5WPC0GV'
-secret_key = 'b0PGLn36sHePTU8Mwru2X9KU5B8qnGRH5UCTDjvV'
-s3_host = '192.168.51.170'
-s3_port = 8773
-s3_path = '/services/Walrus'
-
 
 class UploadFileForm(forms.Form):
     title = forms.CharField(max_length=50)
@@ -27,20 +19,6 @@ class UploadFileForm(forms.Form):
 
 ip_address = None
 
-def get_ipaddr():
-    try:
-        if ip_address is None:
-            resp, content = httplib2.Http().request("http://169.254.169.254/latest/meta-data/hostname")
-        else:
-            return ip_address
-        if resp['status'] != '200' or len(content) <= 0:
-            return '127.0.0.1'
-        else:
-            ip_address = content
-            return ip_address
-    except Exception, err:
-        return '127.0.0.1'
- 
 # Create your views here.
 def index(request):
     body='<html> <head> </head> <body> <table>'
@@ -76,18 +54,18 @@ def store_uploaded_file(f, name):
             destination.write(chunk)
 
     calling_format=boto.s3.connection.OrdinaryCallingFormat()
-    connection = boto.s3.connection.S3Connection(aws_access_key_id=access_key,
-                      aws_secret_access_key=secret_key,
+    connection = boto.s3.connection.S3Connection(aws_access_key_id=settings.IMAGECRUD.access_key,
+                      aws_secret_access_key=settings.IMAGECRUD.secret_key,
                       is_secure=False,
-                      host=s3_host,
-                      port=s3_port,
+                      host=settings.IMAGECRUD.s3_host,
+                      port=settings.IMAGECRUD.s3_port,
                       calling_format=calling_format,
-                      path=s3_path)
+                      path=settings.IMAGECRUD.s3_path)
 
     try:
-        bucket = connection.get_bucket(img_bucket)
+        bucket = connection.get_bucket(settings.IMAGECRUD.img_bucket)
     except:
-        bucket = connection.create_bucket(img_bucket)
+        bucket = connection.create_bucket(settings.IMAGECRUD.img_bucket)
 
     key_name= '%s.jpg' % id_generator()
     key = bucket.new_key(key_name)
@@ -95,7 +73,7 @@ def store_uploaded_file(f, name):
     key.set_canned_acl('public-read')
     key.close()
 
-    return 'http://%s:%s%s/%s/%s' % (s3_host, s3_port,s3_path,img_bucket,key_name)
+    return 'http://%s:%s%s/%s/%s' % (settings.IMAGECRUD.s3_host, settings.IMAGECRUD.s3_port,settings.IMAGECRUD.s3_path,settings.IMAGECRUD.img_bucket,key_name)
 
 @csrf_exempt
 def call(request, image_name):
@@ -146,15 +124,15 @@ def delete(request, image_name):
         key_name = token[len(token)-1]
         try:
             calling_format=boto.s3.connection.OrdinaryCallingFormat()
-            connection = boto.s3.connection.S3Connection(aws_access_key_id=access_key,
-                      aws_secret_access_key=secret_key,
+            connection = boto.s3.connection.S3Connection(aws_access_key_id=settings.IMAGECRUD.access_key,
+                      aws_secret_access_key=settings.IMAGECRUD.secret_key,
                       is_secure=False,
-                      host=s3_host,
-                      port=s3_port,
+                      host=settings.IMAGECRUD.s3_host,
+                      port=settings.IMAGECRUD.s3_port,
                       calling_format=calling_format,
-                      path=s3_path)
+                      path=settings.IMAGECRUD.s3_path)
 
-            bucket = connection.get_bucket(img_bucket)
+            bucket = connection.get_bucket(settings.IMAGECRUD.img_bucket)
             bucket.delete_key(key_name)
         except Exception, err:
             return HttpResponse(err, status=500)

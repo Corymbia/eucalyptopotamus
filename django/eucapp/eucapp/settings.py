@@ -14,7 +14,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'eucapp',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'euca_new',
+        'USER': 'euca',
         'PASSWORD': 'foobar',
         'HOST': '192.168.40.17',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',                      # Set to empty string for default.
@@ -154,4 +154,13 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+
+IMAGECRUD = {
+    'img_bucket' : 'image_crud',
+    'access_key' : '4JWDSSAGCE4VSC5WPC0GV',
+    'secret_key' : 'b0PGLn36sHePTU8Mwru2X9KU5B8qnGRH5UCTDjvV',
+    's3_host' : '192.168.51.170',
+    's3_port' : '8773',
+    's3_path' : '/services/Walrus'
 }

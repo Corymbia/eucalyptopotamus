@@ -17,10 +17,10 @@ if __name__ == "__main__":
     lines = output.split('<a href=')
     for line in lines:
        try:
-           idx_http = line.index('http')
+           idx_start = line.index('"')+1
            idx_end = line.index('>')
-           url = line[idx_http:idx_end-1]
-           commands.getoutput('./delete.py %s' % url)
-           print 'deleted %s' % url
+           img_url = '%s%s' % (url,line[idx_start:idx_end-1])
+           commands.getoutput('./delete.py %s' % img_url)
+           print 'deleted %s' % img_url
        except Exception, err:
            pass
